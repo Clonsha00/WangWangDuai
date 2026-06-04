@@ -68,4 +68,5 @@ def manual_init_db():
         init_db()
         return {"status": "ok", "message": "資料庫初始化完成"}
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        import traceback
+        return {"status": "error", "message": str(e), "detail": traceback.format_exc()}
