@@ -28,20 +28,10 @@ app.add_middleware(
 
 @app.on_event("startup")
 def startup():
-    import time
+    # 只建立連線池（非阻塞），不在啟動時執行 DB 初始化
+    # 避免 PostgreSQL 還沒就緒時造成 Railway health check 超時
     init_pool()
-    # PostgreSQL 在容器環境中需要幾秒才會就緒，最多重試 5 次
-    for attempt in range(1, 6):
-        try:
-            init_db()
-            print(f"✅ DB 初始化成功（第 {attempt} 次嘗試）")
-            break
-        except Exception as e:
-            print(f"⚠️  DB 初始化第 {attempt} 次失敗：{e}")
-            if attempt < 5:
-                time.sleep(3)
-            else:
-                print("❌ DB 初始化失敗，請手動呼叫 POST /admin/init-db")
+    print("✅ 連線池建立完成，服務正在啟動...")
 
 
 # ── 路由註冊 ──────────────────────────────────────────────────────

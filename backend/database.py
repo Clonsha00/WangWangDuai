@@ -16,12 +16,14 @@ _pool: psycopg_pool.ConnectionPool | None = None
 
 def init_pool() -> None:
     global _pool
+    # open=False：不在建立時立刻連線，避免 DB 還沒就緒時 crash
     _pool = psycopg_pool.ConnectionPool(
         conninfo=settings.DATABASE_URL,
         min_size=1,
         max_size=10,
-        open=True,
+        open=False,
     )
+    _pool.open(wait=False)  # 背景非同步連線，不阻塞啟動
 
 
 @contextmanager
