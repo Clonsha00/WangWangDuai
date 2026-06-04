@@ -48,6 +48,19 @@ def health():
     return {"status": "ok", "version": "2.0.0"}
 
 
+@app.get("/admin/debug", tags=["System"])
+def debug_env():
+    """查看部署時的環境變數實際值（僅除錯用）"""
+    from config import settings
+    pwd = settings.ADMIN_PASSWORD
+    return {
+        "admin_username": settings.ADMIN_USERNAME,
+        "admin_password_length": len(pwd),
+        "admin_password_bytes": len(pwd.encode("utf-8")),
+        "admin_password_preview": pwd[:4] + "***" if len(pwd) > 4 else "***",
+    }
+
+
 @app.post("/admin/init-db", tags=["System"])
 def manual_init_db():
     """手動觸發資料庫初始化（部署後若自動初始化失敗時使用）"""
