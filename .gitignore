@@ -1,0 +1,29 @@
+# 環境變數（絕對不能上傳）
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# 資料庫（本地 SQLite，不上傳）
+*.db
+*.sqlite3
+backups/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
