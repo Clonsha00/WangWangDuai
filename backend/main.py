@@ -28,8 +28,20 @@ app.add_middleware(
 
 @app.on_event("startup")
 def startup():
+    import time
     init_pool()
-    init_db()  # 建立資料表與預設資料（使用 IF NOT EXISTS，重複執行安全）
+    # PostgreSQL 在容器環境中需要幾秒才會就緒，最多重試 5 次
+    for attempt in range(1, 6):
+        try:
+            init_db()
+            print(f"✅ DB 初始化成功（第 {attempt} 次嘗試）")
+            break
+        except Exception as e:
+            print(f"⚠️  DB 初始化第 {attempt} 次失敗：{e}")
+            if attempt < 5:
+                time.sleep(3)
+            else:
+                print("❌ DB 初始化失敗，請手動呼叫 POST /admin/init-db")
 
 
 # ── 路由註冊 ──────────────────────────────────────────────────────
@@ -44,3 +56,13 @@ app.include_router(debts.router,     prefix="/api/debts",      tags=["💸 Debts
 @app.get("/health", tags=["System"])
 def health():
     return {"status": "ok", "version": "2.0.0"}
+
+
+@app.post("/admin/init-db", tags=["System"])
+def manual_init_db():
+    """手動觸發資料庫初始化（部署後若自動初始化失敗時使用）"""
+    try:
+        init_db()
+        return {"status": "ok", "message": "資料庫初始化完成"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
