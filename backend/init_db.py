@@ -10,8 +10,7 @@ from psycopg.rows import dict_row
 from passlib.context import CryptContext
 from config import settings
 
-# truncate_error=False：bcrypt 最多 72 bytes，超過自動截斷而非報錯
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", truncate_error=False)
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS users (
@@ -155,8 +154,9 @@ def init_db() -> None:
                     ON CONFLICT (name) DO NOTHING
                 """, (name, icon, order))
 
-            # 建立管理員帳號
-            hashed = pwd_context.hash(settings.ADMIN_PASSWORD)
+            # 建立管理員帳號（bcrypt 最多 72 bytes，強制截斷）
+            safe_pwd = settings.ADMIN_PASSWORD.encode("utf-8")[:72].decode("utf-8", errors="ignore")
+            hashed = pwd_context.hash(safe_pwd)
             cur.execute("""
                 INSERT INTO users (username, hashed_password)
                 VALUES (%s, %s)

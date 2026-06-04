@@ -13,12 +13,13 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from config import settings
 from database import get_db, serialize
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", truncate_error=False)
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 _bearer = HTTPBearer()
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+    safe = plain.encode("utf-8")[:72].decode("utf-8", errors="ignore")
+    return pwd_context.verify(safe, hashed)
 
 
 def create_token(username: str) -> str:
