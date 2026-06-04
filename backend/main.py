@@ -7,6 +7,7 @@ FastAPI 應用程式進入點。
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import init_pool
+from init_db import init_db
 from routers import auth, finance, actions, habits, knowledge, debts
 
 app = FastAPI(
@@ -28,6 +29,7 @@ app.add_middleware(
 @app.on_event("startup")
 def startup():
     init_pool()
+    init_db()  # 建立資料表與預設資料（使用 IF NOT EXISTS，重複執行安全）
 
 
 # ── 路由註冊 ──────────────────────────────────────────────────────
