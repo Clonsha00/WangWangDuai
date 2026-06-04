@@ -10,7 +10,8 @@ from psycopg.rows import dict_row
 from passlib.context import CryptContext
 from config import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# truncate_error=False：bcrypt 最多 72 bytes，超過自動截斷而非報錯
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", truncate_error=False)
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS users (
